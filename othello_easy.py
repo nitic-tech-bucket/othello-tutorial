@@ -1,3 +1,5 @@
+# Othello game implementation without class & GUI
+
 BLACK_CHAR = "○"
 WHITE_CHAR = "●"
 EMPTY_CHAR = "*"
@@ -44,7 +46,7 @@ def is_on_board(x: int, y: int) -> bool:
     return 0 <= x < 8 and 0 <= y < 8
 
 
-def put(board: list[list[chr]], x: int, y: int, color: chr):
+def put(board: list[list[chr]], x: int, y: int, color: chr) -> list[list[chr]]:
     if not is_on_board(x, y) or board[x][y] != EMPTY_CHAR:
         return board
 
@@ -94,7 +96,7 @@ def get_flip_direction(
     return directions
 
 
-def get_flip_positions(board: list[list[chr]], color: chr):
+def get_flip_positions(board: list[list[chr]], color: chr) -> list[tuple[int, int]]:
     positions = []
     for y in range(len(board)):
         for x in range(len(board[y])):
