@@ -1,21 +1,17 @@
-# Othello game implementation without class & GUI
-
-
-BLACK = 1
-WHITE = 2
-EMPTY = 0
-
 BLACK_CHAR = "○"
 WHITE_CHAR = "●"
 EMPTY_CHAR = "*"
 
 
-def flip_color(color: int) -> int:
-    return WHITE if color == BLACK else BLACK
+def flip_color(color: chr) -> chr:
+    if color == BLACK_CHAR:
+        return WHITE_CHAR
+    elif color == WHITE_CHAR:
+        return BLACK_CHAR
 
 
-def create_board() -> list[list[int]]:
-    b, w, e = BLACK, WHITE, EMPTY
+def create_board() -> list[list[chr]]:
+    b, w, e = BLACK_CHAR, WHITE_CHAR, EMPTY_CHAR
     return [
         [e, e, e, e, e, e, e, e],
         [e, e, e, e, e, e, e, e],
@@ -28,32 +24,28 @@ def create_board() -> list[list[int]]:
     ]
 
 
-def print_board(board: list[list[int]]) -> None:
-    print(f"black ({BLACK_CHAR}): {sum([row.count(BLACK) for row in board])}")
-    print(f"white ({WHITE_CHAR}): {sum([row.count(WHITE) for row in board])}")
+def print_board(board: list[list[chr]]) -> None:
+    row_number = 0
+    black_count = 0
+    white_count = 0
     print("  0 1 2 3 4 5 6 7")
-    for y in range(len(board)):
-        row = board[y]
-        print(
-            f"{y} "
-            + " ".join(
-                (
-                    BLACK_CHAR
-                    if cell == BLACK
-                    else WHITE_CHAR if cell == WHITE else EMPTY_CHAR
-                )
-                for cell in row
-            )
-        )
+    for row in board:
+        black_count += row.count(BLACK_CHAR)
+        white_count += row.count(WHITE_CHAR)
+        print(f"{row_number} ", end="")
+        print(*row)
+        row_number += 1
     print()
+    print(f"black ({BLACK_CHAR}): {black_count}")
+    print(f"white ({WHITE_CHAR}): {white_count}")
 
 
 def is_on_board(x: int, y: int) -> bool:
     return 0 <= x < 8 and 0 <= y < 8
 
 
-def put(board: list[list[int]], x: int, y: int, color: int) -> list[list[int]]:
-    if not is_on_board(x, y) or board[y][x] != EMPTY:
+def put(board: list[list[chr]], x: int, y: int, color: chr):
+    if not is_on_board(x, y) or board[x][y] != EMPTY_CHAR:
         return board
 
     directions = get_flip_direction(board, x, y, color)
@@ -63,7 +55,8 @@ def put(board: list[list[int]], x: int, y: int, color: int) -> list[list[int]]:
     board[y][x] = color
     for dx, dy in directions:
         for i in range(1, 8):
-            cx, cy = x + dx * i, y + dy * i
+            cx = x + dx * i
+            cy = y + dy * i
             if board[cy][cx] == flip_color(color):
                 board[cy][cx] = color
             else:
@@ -73,33 +66,35 @@ def put(board: list[list[int]], x: int, y: int, color: int) -> list[list[int]]:
 
 
 def get_flip_direction(
-    board: list[list[int]], x: int, y: int, color: int
+    board: list[list[chr]], x: int, y: int, color: chr
 ) -> list[tuple[int, int]]:
     directions = []
 
-    if board[y][x] != EMPTY:
+    if board[y][x] != EMPTY_CHAR:
         return directions
 
     for dx in [-1, 0, 1]:
         for dy in [-1, 0, 1]:
             opp_count = 0
             for i in range(1, 8):
-                cx, cy = x + dx * i, y + dy * i
+                cx = x + dx * i
+                cy = y + dy * i
 
                 if not is_on_board(cx, cy):
                     break
-                elif board[cy][cx] == EMPTY:
+                elif board[cy][cx] == EMPTY_CHAR:
                     break
                 elif board[cy][cx] == flip_color(color):
                     opp_count += 1
-                else:  # board[cy][cx] == color
+                else:
                     if opp_count > 0:
                         directions.append((dx, dy))
                     break
+
     return directions
 
 
-def get_flip_positions(board: list[list[int]], color: int) -> list[tuple[int, int]]:
+def get_flip_positions(board: list[list[chr]], color: chr):
     positions = []
     for y in range(len(board)):
         for x in range(len(board[y])):
@@ -120,29 +115,36 @@ def safe_input(prompt: str) -> int:
 def play():
     board = create_board()
 
-    current_color = BLACK
+    current_color = BLACK_CHAR
     while True:
         print()
-        print(f"Current player: {'black' if current_color == BLACK else 'white'}")
+        if current_color == BLACK_CHAR:
+            current_player = "black"
+        else:
+            current_player = "white"
+        print(f"Current player: {current_player}")
         print_board(board)
 
-        black_flip_pos = get_flip_positions(board, BLACK)
-        white_flip_pos = get_flip_positions(board, WHITE)
+        black_flip_pos = get_flip_positions(board, BLACK_CHAR)
+        white_flip_pos = get_flip_positions(board, WHITE_CHAR)
 
         if len(black_flip_pos) == 0 and len(white_flip_pos) == 0:
             print("No valid moves for both players. Game over.")
             break
 
-        if current_color == BLACK and len(black_flip_pos) == 0:
+        if current_color == BLACK_CHAR and len(black_flip_pos) == 0:
             print("No valid moves for black. Switching to white.")
             current_color = flip_color(current_color)
             continue
-        if current_color == WHITE and len(white_flip_pos) == 0:
+        if current_color == WHITE_CHAR and len(white_flip_pos) == 0:
             print("No valid moves for white. Switching to black.")
             current_color = flip_color(current_color)
             continue
 
-        flip_pos = black_flip_pos if current_color == BLACK else white_flip_pos
+        if current_color == BLACK_CHAR:
+            flip_pos = black_flip_pos
+        else:
+            flip_pos = white_flip_pos
 
         while True:
             x = safe_input("Enter x coordinate (0-7): ")
